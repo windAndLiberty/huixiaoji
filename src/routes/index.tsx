@@ -118,7 +118,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-secondary flex justify-center">
-      <div className="relative w-full max-w-[430px] min-h-screen bg-background shadow-xl overflow-hidden">
+      <div className="relative w-full max-w-[430px] min-h-screen bg-background text-foreground shadow-xl overflow-hidden">
         {screen === "home" && <Home type={type} setType={setType} onStart={start} />}
         {(screen === "meeting" || screen === "background") && (
           <Meeting
@@ -157,17 +157,14 @@ function Home({ type, setType, onStart }: { type: string; setType: (t: "现场�
     <div className="p-6 pt-12 flex flex-col min-h-screen">
       <div className="flex items-center gap-3">
         <Logo />
-        <div>
-          <h1 className="font-serif font-black text-2xl">会小纪</h1>
-          <p className="text-xs text-muted-foreground">录音本地保存 · 会中低打扰</p>
-        </div>
+        <h1 className="font-serif font-bold text-2xl">会小纪</h1>
       </div>
-      <div className="mt-10 rounded-2xl bg-card border p-5">
+      <div className="mt-10 rounded-lg bg-card border p-5">
         <p className="text-sm text-muted-foreground">选择会议类型</p>
         <div className="mt-3 grid grid-cols-2 gap-3">
           {([["现场会议", Users], ["云会议", Video]] as const).map(([t, I]) => (
             <button key={t} onClick={() => setType(t)}
-              className={`rounded-xl border-2 p-4 text-left transition ${type === t ? "border-primary bg-primary/5" : "border-transparent bg-muted"}`}>
+              className={`rounded-md border p-4 text-left transition ${type === t ? "border-primary bg-primary/15" : "border-border bg-muted/50"}`}>
               <I className="h-5 w-5 text-primary" />
               <div className="mt-2 font-medium">{t}</div>
               <div className="text-xs text-muted-foreground">{t === "现场会议" ? "拾取周围声音" : "配合会议软件使用"}</div>
@@ -183,7 +180,7 @@ function Home({ type, setType, onStart }: { type: string; setType: (t: "现场�
       <div className="mt-8">
         <h2 className="font-serif font-semibold">最近会议</h2>
         {["客户需求沟通会 · 9/28 · 42:10", "周例会 · 9/25 · 31:05"].map((m) => (
-          <div key={m} className="mt-3 flex items-center gap-3 rounded-xl bg-card border p-4 text-sm">
+          <div key={m} className="mt-3 flex items-center gap-3 rounded-md bg-card border p-4 text-sm">
             <FileText className="h-4 w-4 text-accent" /> {m}
           </div>
         ))}
@@ -325,17 +322,17 @@ function Meeting(p: {
 
 function Background({ type, sec, paused, onOpen }: { type: string; sec: number; paused: boolean; onOpen: () => void }) {
   return (
-    <div className="absolute inset-0 z-20 bg-foreground text-background">
+    <div className="absolute inset-0 z-20 bg-secondary text-foreground">
       <div className="p-5 pt-8 text-sm opacity-70">{type === "云会议" ? "模拟：会议软件在前台" : "模拟：其他应用在前台"}</div>
       <div className="grid grid-cols-2 gap-2 p-4">
-        {[1, 2, 3, 4].map((i) => <div key={i} className="aspect-[3/4] rounded-xl bg-background/10 grid place-items-center"><Users className="h-8 w-8 opacity-40" /></div>)}
+        {[1, 2, 3, 4].map((i) => <div key={i} className="aspect-[3/4] rounded-md border border-border bg-card grid place-items-center"><Users className="h-8 w-8 opacity-40" /></div>)}
       </div>
       <button onClick={onOpen} className="absolute right-4 top-1/2 flex flex-col items-center gap-1 active:scale-95">
         <div className="relative">
           <Logo size={56} />
-          {!paused && <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-destructive ring-2 ring-foreground animate-pulse" />}
+          {!paused && <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-destructive ring-2 ring-secondary animate-pulse" />}
         </div>
-        <span className="rounded-full bg-background/90 text-foreground px-2 text-xs font-mono">{fmt(sec)}</span>
+        <span className="rounded-full bg-card text-foreground px-2 text-xs font-mono">{fmt(sec)}</span>
       </button>
       <p className="absolute bottom-10 inset-x-0 text-center text-xs opacity-60">录音持续进行 · 点击悬浮「纪」按钮回到记录</p>
     </div>

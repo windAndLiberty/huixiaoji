@@ -5,7 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-serif: "Noto Serif SC", serif;
+  --font-serif: "Noto Sans SC", system-ui, sans-serif;
   --font-sans: "Noto Sans SC", system-ui, sans-serif;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -36,28 +36,28 @@
 }
 
 :root {
-  --radius: 0.9rem;
-  --background: oklch(0.97 0.012 85);
-  --foreground: oklch(0.22 0.02 60);
-  --card: oklch(0.995 0.005 85);
-  --card-foreground: oklch(0.22 0.02 60);
-  --primary: oklch(0.55 0.17 35);
-  --primary-foreground: oklch(0.99 0.01 85);
-  --secondary: oklch(0.92 0.02 85);
-  --secondary-foreground: oklch(0.25 0.02 60);
-  --muted: oklch(0.93 0.015 85);
-  --muted-foreground: oklch(0.5 0.02 60);
-  --accent: oklch(0.36 0.06 160);
-  --accent-foreground: oklch(0.98 0.01 85);
-  --destructive: oklch(0.58 0.22 27);
-  --border: oklch(0.87 0.02 80);
-  --input: oklch(0.87 0.02 80);
-  --ring: oklch(0.55 0.17 35);
-  --note: oklch(0.94 0.08 95);
+  --radius: 0.5rem;
+  --background: oklch(0.22 0.035 248);
+  --foreground: oklch(0.94 0.015 235);
+  --card: oklch(0.31 0.045 245);
+  --card-foreground: oklch(0.94 0.015 235);
+  --primary: oklch(0.7 0.16 245);
+  --primary-foreground: oklch(0.17 0.035 250);
+  --secondary: oklch(0.16 0.027 250);
+  --secondary-foreground: oklch(0.88 0.02 235);
+  --muted: oklch(0.37 0.04 245);
+  --muted-foreground: oklch(0.77 0.023 235);
+  --accent: oklch(0.75 0.11 190);
+  --accent-foreground: oklch(0.17 0.035 250);
+  --destructive: oklch(0.73 0.17 27);
+  --border: oklch(0.45 0.043 245);
+  --input: oklch(0.45 0.043 245);
+  --ring: oklch(0.7 0.16 245);
+  --note: oklch(0.26 0.034 240);
   --sp1: oklch(0.62 0.13 250);
-  --sp2: oklch(0.6 0.13 150);
-  --sp3: oklch(0.62 0.15 320);
-  --sp4: oklch(0.65 0.14 70);
+  --sp2: oklch(0.59 0.12 175);
+  --sp3: oklch(0.62 0.13 315);
+  --sp4: oklch(0.67 0.13 65);
 }
 
 @layer base {
