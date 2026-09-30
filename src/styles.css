@@ -68,3 +68,17 @@
     font-family: var(--font-sans);
   }
 }
+
+@layer components {
+  .notepad {
+    line-height: 2rem;
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent calc(2rem - 1px),
+      var(--color-border) calc(2rem - 1px),
+      var(--color-border) 2rem
+    );
+    background-attachment: local;
+  }
+}

@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   Mic, MicOff, Pause, Play, Square, Users, Video, MessageSquare, StickyNote,
   ChevronLeft, FileText, Pencil, Check, Sparkles as _s, Minimize2,
+  Heading1, List, ListChecks, Minus,
 } from "lucide-react";
 
 export const Route = createFileRoute("/")({
@@ -20,7 +21,6 @@ void _s;
 
 type Speaker = { id: number; label: string; name: string; role: string; color: string };
 type Line = { id: number; sp: number; text: string; t: number };
-type Note = { id: number; text: string; t: number; tag: string };
 type Screen = "home" | "meeting" | "background" | "after";
 
 const COLORS = ["bg-sp1", "bg-sp2", "bg-sp3", "bg-sp4"];
@@ -48,7 +48,7 @@ function App() {
   const [level, setLevel] = useState(0);
   const [lines, setLines] = useState<Line[]>([]);
   const [speakers, setSpeakers] = useState<Speaker[]>([]);
-  const [notes, setNotes] = useState<Note[]>([]);
+  const [pad, setPad] = useState("");
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [tab, setTab] = useState<"chat" | "note">("chat");
   const rec = useRef<MediaRecorder | null>(null);
@@ -76,7 +76,7 @@ function App() {
   }, [running]);
 
   async function start() {
-    setSec(0); setLines([]); setSpeakers([]); setNotes([]); idx.current = 0; setPaused(false);
+    setSec(0); setLines([]); setSpeakers([]); setPad(""); idx.current = 0; setPaused(false);
     if (audioUrl) URL.revokeObjectURL(audioUrl);
     setAudioUrl(null);
     try {
@@ -123,7 +123,7 @@ function App() {
         {(screen === "meeting" || screen === "background") && (
           <Meeting
             type={type} sec={sec} paused={paused} micOk={micOk} level={level}
-            lines={lines} speakers={speakers} notes={notes} setNotes={setNotes}
+            lines={lines} speakers={speakers} pad={pad} setPad={setPad}
             tab={tab} setTab={setTab} onPause={togglePause} onStop={stop}
             onMinimize={() => setScreen("background")}
           />
@@ -134,7 +134,7 @@ function App() {
         {screen === "after" && (
           <After
             sec={sec} type={type} lines={lines} speakers={speakers} setSpeakers={setSpeakers}
-            notes={notes} setNotes={setNotes} audioUrl={audioUrl} onHome={() => setScreen("home")}
+            pad={pad} setPad={setPad} audioUrl={audioUrl} onHome={() => setScreen("home")}
           />
         )}
       </div>
@@ -222,23 +222,41 @@ function Avatar({ sp, size = 32 }: { sp: Speaker; size?: number }) {
 
 function Meeting(p: {
   type: string; sec: number; paused: boolean; micOk: boolean | null; level: number;
-  lines: Line[]; speakers: Speaker[]; notes: Note[]; setNotes: (f: (n: Note[]) => Note[]) => void;
+  lines: Line[]; speakers: Speaker[]; pad: string; setPad: (v: string) => void;
   tab: "chat" | "note"; setTab: (t: "chat" | "note") => void;
   onPause: () => void; onStop: () => void; onMinimize: () => void;
 }) {
   const scroller = useRef<HTMLDivElement>(null);
-  const [draft, setDraft] = useState("");
+  const ta = useRef<HTMLTextAreaElement>(null);
   useEffect(() => {
     scroller.current?.querySelectorAll<HTMLElement>("[data-page]").forEach((el) =>
       el.scrollTo({ top: el.scrollHeight, behavior: "smooth" }));
-  }, [p.lines.length, p.notes.length]);
+  }, [p.lines.length]);
   function go(t: "chat" | "note") {
     p.setTab(t);
     scroller.current?.scrollTo({ left: t === "chat" ? 0 : scroller.current.clientWidth, behavior: "smooth" });
+    if (t === "note") requestAnimationFrame(() => ta.current?.focus());
   }
-  function add(tag: string) {
-    const text = draft.trim(); if (!text) return;
-    p.setNotes((n) => [...n, { id: Date.now(), text, t: p.sec, tag }]); setDraft("");
+  function togglePrefix(prefix: string) {
+    const el = ta.current; if (!el) return;
+    const pad = p.pad;
+    const s = el.selectionStart, e = el.selectionEnd;
+    const ls = pad.lastIndexOf("\n", s - 1) + 1;
+    let le = pad.indexOf("\n", e); if (le === -1) le = pad.length;
+    const block = pad.slice(ls, le).split("\n");
+    const all = block.every((l) => l.startsWith(prefix));
+    const next = block.map((l) => (all ? (l.startsWith(prefix) ? l.slice(prefix.length) : l) : prefix + l)).join("\n");
+    p.setPad(pad.slice(0, ls) + next + pad.slice(le));
+    requestAnimationFrame(() => { el.focus(); el.setSelectionRange(ls, ls + next.length); });
+  }
+  function insertDivider() {
+    const el = ta.current; if (!el) return;
+    const s = el.selectionStart;
+    const pad = p.pad;
+    const lead = s === 0 || pad[s - 1] === "\n" ? "" : "\n";
+    const ins = `${lead}⋯⋯⋯⋯⋯⋯⋯⋯⋯⋯\n`;
+    p.setPad(pad.slice(0, s) + ins + pad.slice(s));
+    requestAnimationFrame(() => { el.focus(); const pos = s + ins.length; el.setSelectionRange(pos, pos); });
   }
   return (
     <div className="flex flex-col h-screen">
@@ -258,7 +276,7 @@ function Meeting(p: {
           {([["chat", "消息对话", MessageSquare], ["note", "笔记便签", StickyNote]] as const).map(([k, l, I]) => (
             <button key={k} onClick={() => go(k)}
               className={`rounded-full py-1.5 flex items-center justify-center gap-1 ${p.tab === k ? "bg-card shadow font-medium" : "text-muted-foreground"}`}>
-              <I className="h-4 w-4" />{l}{k === "note" && p.notes.length > 0 && <span className="text-primary">·{p.notes.length}</span>}
+              <I className="h-4 w-4" />{l}
             </button>
           ))}
         </div>
@@ -283,25 +301,22 @@ function Meeting(p: {
           {p.speakers.length > 0 && <p className="text-center text-xs text-muted-foreground">已识别 {p.speakers.length} 位说话人（匿名）</p>}
         </div>
         <div className="w-full shrink-0 snap-start flex flex-col bg-note/30">
-          <div data-page className="flex-1 overflow-y-auto p-4 space-y-2">
-            {p.notes.length === 0 && <p className="text-center text-sm text-muted-foreground mt-20">记下关键词、短句、待办或人名</p>}
-            {p.notes.map((n) => (
-              <div key={n.id} className="rounded-lg bg-note px-3 py-2 text-sm shadow-sm flex gap-2">
-                <span className="font-mono text-xs text-muted-foreground pt-0.5">{fmt(n.t)}</span>
-                <span className="text-xs rounded bg-card px-1.5 py-0.5 h-fit">{n.tag}</span>
-                <span>{n.text}</span>
-              </div>
+          <div className="flex items-center gap-1.5 px-3 py-2 border-b border-border/60 bg-card/90 overflow-x-auto [scrollbar-width:none]">
+            {([["标题", Heading1, "# "], ["列表", List, "• "], ["待办", ListChecks, "□ "]] as const).map(([label, I, pre]) => (
+              <button key={label} onClick={() => togglePrefix(pre)}
+                className="flex items-center gap-1 rounded-full bg-muted px-3 py-1.5 text-xs shrink-0 active:bg-note">
+                <I className="h-3.5 w-3.5" />{label}
+              </button>
             ))}
+            <button onClick={insertDivider}
+              className="flex items-center gap-1 rounded-full bg-muted px-3 py-1.5 text-xs shrink-0 active:bg-note">
+              <Minus className="h-3.5 w-3.5" />分割线
+            </button>
+            <span className="ml-auto pr-1 text-[10px] text-muted-foreground shrink-0">自动保存</span>
           </div>
-          <div className="p-3 border-t bg-card space-y-2">
-            <input value={draft} onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => e.key === "Enter" && add("短句")}
-              placeholder="快速记一笔…" className="w-full rounded-xl border bg-background px-3 py-2.5 text-sm outline-none focus:ring-2 ring-ring" />
-            <div className="flex gap-2">
-              {["关键词", "短句", "待办", "人名"].map((t) => (
-                <button key={t} onClick={() => add(t)} className="flex-1 rounded-full bg-muted py-1.5 text-xs active:bg-note">{t}</button>
-              ))}
-            </div>
-          </div>
+          <textarea ref={ta} value={p.pad} onChange={(e) => p.setPad(e.target.value)}
+            placeholder={"像手机记事本一样自由记录…\n\n小贴士：选中文字后点上方按钮，可设为标题、列表或待办"}
+            className="notepad flex-1 w-full resize-none bg-transparent px-5 pt-0 pb-6 text-sm leading-8 outline-none placeholder:text-muted-foreground" />
         </div>
       </div>
     </div>
@@ -327,9 +342,12 @@ function Background({ type, sec, paused, onOpen }: { type: string; sec: number; 
   );
 }
 
-function buildDetailed(lines: Line[], notes: Note[]) {
+function buildDetailed(lines: Line[], pad: string) {
   const all = lines.map((l) => l.text).join("");
   const has = (k: string) => all.includes(k);
+  const padLines = pad.split("\n").map((l) => l.trim()).filter(Boolean);
+  const todos = padLines.filter((l) => l.startsWith("□")).map((l) => l.replace(/^□\s*/, ""));
+  const extras = padLines.filter((l) => !l.startsWith("□")).map((l) => l.replace(/^(#|•)\s*/, ""));
   const sections: { h: string; items: string[] }[] = [
     { h: "会议主题", items: ["新版本上线进度同步与上线计划确认"] },
     { h: "进展情况", items: [
@@ -347,17 +365,17 @@ function buildDetailed(lines: Line[], notes: Note[]) {
       has("证书续期我来") && "完成第三方支付证书续期，截止本周三。",
       has("修复方案") && "输出低版本兼容问题修复方案，截止周四。",
       has("物料") && "上线前两天确认宣传物料终稿。",
-      ...notes.filter((n) => n.tag === "待办").map((n) => n.text),
+      ...todos,
     ].filter(Boolean) as string[] },
     { h: "风险提示", items: [has("证书") && "支付证书若未及时续期，将影响上线。"].filter(Boolean) as string[] },
-    { h: "补充记录", items: notes.filter((n) => n.tag !== "待办").map((n) => `${n.tag}：${n.text}`) },
+    { h: "补充记录", items: extras },
   ];
   return sections.filter((s) => s.items.length);
 }
 
 function After(p: {
   sec: number; type: string; lines: Line[]; speakers: Speaker[]; setSpeakers: (s: Speaker[]) => void;
-  notes: Note[]; setNotes: (f: (n: Note[]) => Note[]) => void; audioUrl: string | null; onHome: () => void;
+  pad: string; setPad: (v: string) => void; audioUrl: string | null; onHome: () => void;
 }) {
   const [editing, setEditing] = useState<Speaker | null>(null);
   const [detail, setDetail] = useState<{ h: string; items: string[] }[] | null>(null);
@@ -406,13 +424,11 @@ function After(p: {
 
         <section>
           <h3 className="font-serif font-semibold">简短笔记</h3>
-          <div className="mt-2 space-y-2">
-            {p.notes.map((n) => (
-              <input key={n.id} value={n.text}
-                onChange={(e) => p.setNotes((all) => all.map((x) => x.id === n.id ? { ...x, text: e.target.value } : x))}
-                className="w-full rounded-lg bg-note px-3 py-2 text-sm outline-none" />
-            ))}
-            {p.notes.length === 0 && <p className="text-sm text-muted-foreground">会中未记录便签</p>}
+          <p className="text-xs text-muted-foreground">会中记下的便签，可继续编辑；以「□」开头的行会进入详细笔记的行动项。</p>
+          <div className="mt-2 rounded-xl border bg-note/40">
+            <textarea value={p.pad} onChange={(e) => p.setPad(e.target.value)} rows={Math.max(3, p.pad.split("\n").length + 1)}
+              placeholder="会中未记录便签，可在此补记…"
+              className="notepad w-full resize-none bg-transparent rounded-xl px-3 pt-0 pb-2 text-sm leading-8 outline-none placeholder:text-muted-foreground" />
           </div>
         </section>
 
