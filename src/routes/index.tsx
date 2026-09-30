@@ -68,7 +68,7 @@ function App() {
       setSpeakers((prev) =>
         prev.some((p) => p.id === sp)
           ? prev
-          : [...prev, { id: sp, label: `说话人 ${String.fromCharCode(65 + sp)}`, name: "", role: "", color: COLORS[sp % 4] }],
+          : [...prev, { id: sp, label: `说话人 ${String.fromCharCode(65 + sp)}`, name: "", role: "", color: COLORS[sp % 4] ?? "bg-sp1" }],
       );
       setLines((l) => [...l, { id: Date.now(), sp, text, t: 0 }]);
     }, 3200);
