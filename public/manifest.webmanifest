@@ -1,0 +1,9 @@
+{
+  "name": "会小纪",
+  "short_name": "会小纪",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f6f1e7",
+  "theme_color": "#c4502b",
+  "icons": [{ "src": "/favicon.ico", "sizes": "64x64", "type": "image/x-icon" }]
+}
