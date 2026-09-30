@@ -64,7 +64,7 @@ function App() {
     const t = setInterval(() => setSec((s) => s + 1), 1000);
     const f = setInterval(() => {
       if (idx.current >= SCRIPT.length) return;
-      const [sp, text] = SCRIPT[idx.current++];
+      const [sp, text] = SCRIPT[idx.current++] as [number, string];
       setSpeakers((prev) =>
         prev.some((p) => p.id === sp)
           ? prev
