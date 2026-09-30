@@ -383,7 +383,7 @@ function After(p: {
   const [edit, setEdit] = useState(false);
   function generate() {
     setGen(true);
-    setTimeout(() => { setDetail(buildDetailed(p.lines, p.notes)); setGen(false); }, 1400);
+    setTimeout(() => { setDetail(buildDetailed(p.lines, p.pad)); setGen(false); }, 1400);
   }
   return (
     <div className="min-h-screen pb-10">
