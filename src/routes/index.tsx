@@ -3,8 +3,11 @@ import { useEffect, useRef, useState } from "react";
 import {
   Mic, MicOff, Pause, Play, Square, Users, Video, MessageSquare, StickyNote,
   ChevronLeft, FileText, Pencil, Check, Sparkles as _s, Minimize2,
-  Heading1, List, ListChecks, Minus,
+  Heading1, List, ListChecks, Minus, AudioLines, ArrowUpRight, ArrowRight, Clock3, ShieldCheck,
 } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import voiceSculpture from "@/assets/voice-sculpture.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -13,6 +16,8 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "会议录音、实时转写气泡、会中便签与客观详细笔记一键生成。" },
       { property: "og:title", content: "会小纪 · 智能会议记录" },
       { property: "og:description", content: "会议录音、实时转写气泡、会中便签与客观详细笔记一键生成。" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: App,
@@ -117,8 +122,8 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-secondary flex justify-center">
-      <div className="relative w-full max-w-[430px] min-h-screen bg-background text-foreground shadow-xl overflow-hidden">
+    <div className="app-stage min-h-screen flex justify-center">
+      <div className={`app-shell relative w-full min-h-screen text-foreground overflow-hidden ${screen === "home" ? "home-shell" : "session-shell"}`}>
         {screen === "home" && <Home type={type} setType={setType} onStart={start} />}
         {(screen === "meeting" || screen === "background") && (
           <Meeting
@@ -143,48 +148,47 @@ function App() {
 }
 
 function Logo({ size = 44 }: { size?: number }) {
-  return (
-    <div style={{ width: size, height: size }}
-      className="rounded-2xl bg-primary text-primary-foreground grid place-items-center font-serif font-black shadow-lg"
-    >
-      <span style={{ fontSize: size * 0.45 }}>纪</span>
-    </div>
-  );
+  return <div style={{ width: size, height: size }} className="brand-mark shrink-0 grid place-items-center"><AudioLines className="h-6 w-6" /></div>;
 }
 
 function Home({ type, setType, onStart }: { type: string; setType: (t: "现场会议" | "云会议") => void; onStart: () => void }) {
   return (
-    <div className="p-6 pt-12 flex flex-col min-h-screen">
-      <div className="flex items-center gap-3">
-        <Logo />
-        <h1 className="font-serif font-bold text-2xl">会小纪</h1>
-      </div>
-      <div className="mt-10 rounded-lg bg-card border p-5">
-        <p className="text-sm text-muted-foreground">选择会议类型</p>
-        <div className="mt-3 grid grid-cols-2 gap-3">
-          {([["现场会议", Users], ["云会议", Video]] as const).map(([t, I]) => (
-            <button key={t} onClick={() => setType(t)}
-              className={`rounded-md border p-4 text-left transition ${type === t ? "border-primary bg-primary/15" : "border-border bg-muted/50"}`}>
-              <I className="h-5 w-5 text-primary" />
-              <div className="mt-2 font-medium">{t}</div>
-              <div className="text-xs text-muted-foreground">{t === "现场会议" ? "拾取周围声音" : "配合会议软件使用"}</div>
-            </button>
-          ))}
+    <div className="home-page">
+      <header className="home-header flex items-center justify-between">
+        <div className="flex items-center gap-2.5"><Logo size={36} /><span className="text-lg font-bold">会小纪<span className="brand-dot">.</span></span></div>
+        <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><span className="h-1.5 w-1.5 rounded-full bg-accent" />准备就绪</span>
+      </header>
+      <main className="home-main">
+        <div className="home-intro text-center">
+          <p className="eyebrow">留住每一个重要时刻</p>
+          <h1 className="mt-3 text-[34px] font-bold leading-tight">会小纪</h1>
+          <p className="mt-3 text-sm text-muted-foreground">专注对话，让记录自然发生。</p>
         </div>
-        <button onClick={onStart}
-          className="mt-5 w-full rounded-full bg-primary text-primary-foreground py-4 font-bold text-lg flex items-center justify-center gap-2 active:scale-[.98]">
-          <Mic className="h-5 w-5" /> 开始会议
-        </button>
-        <p className="mt-2 text-center text-xs text-muted-foreground">待机中 · 00:00</p>
-      </div>
-      <div className="mt-8">
-        <h2 className="font-serif font-semibold">最近会议</h2>
-        {["客户需求沟通会 · 9/28 · 42:10", "周例会 · 9/25 · 31:05"].map((m) => (
-          <div key={m} className="mt-3 flex items-center gap-3 rounded-md bg-card border p-4 text-sm">
-            <FileText className="h-4 w-4 text-accent" /> {m}
+        <div className="voice-art"><img src={voiceSculpture} alt="通透玻璃声波" width={1024} height={768} fetchPriority="high" /></div>
+        <div className="record-setup">
+          <div className="meeting-type grid grid-cols-2 gap-2">
+            {([["现场会议", Users], ["云会议", Video]] as const).map(([t, I]) => (
+              <Button variant="plain" size="plain" key={t} onClick={() => setType(t)} aria-pressed={type === t}
+                className={`type-choice ${type === t ? "is-selected" : ""}`}>
+                <I className="h-4 w-4" /><span>{t}</span>{type === t && <Check className="ml-auto h-3.5 w-3.5" />}
+              </Button>
+            ))}
+          </div>
+          <Button variant="plain" size="plain" onClick={onStart} className="start-meeting w-full"><Mic className="h-5 w-5" />开始会议<ArrowRight className="ml-auto h-5 w-5" /></Button>
+          <p className="mt-3 flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground"><ShieldCheck className="h-3 w-3" />{type === "现场会议" ? "麦克风录音" : "配合会议软件录音"}<span className="mx-1">·</span><span className="font-mono">00:00</span></p>
+        </div>
+      </main>
+      <section className="recent-section">
+        <div className="flex items-center justify-between"><h2 className="text-sm font-semibold">最近会议</h2><span className="text-[10px] text-muted-foreground">示例记录</span></div>
+        {[["客户需求沟通会", "9月28日", "42:10"], ["产品周例会", "9月25日", "31:05"]].map(([title, date, time]) => (
+          <div key={title} className="recent-row flex items-center gap-3">
+            <div className="record-icon"><FileText className="h-4 w-4" /></div>
+            <div className="min-w-0 flex-1"><h3 className="text-sm font-medium">{title}</h3><p className="mt-1 flex items-center gap-2 text-[11px] text-muted-foreground">{date}<span>·</span><Clock3 className="h-3 w-3" />{time}</p></div>
+            <span className="text-[10px] text-muted-foreground">已结束</span>
           </div>
         ))}
-      </div>
+      </section>
+      <footer className="home-footer"><AudioLines className="h-3 w-3" /><span>会小纪 · 让沟通有迹可循</span></footer>
     </div>
   );
 }
@@ -256,41 +260,42 @@ function Meeting(p: {
     requestAnimationFrame(() => { el.focus(); const pos = s + ins.length; el.setSelectionRange(pos, pos); });
   }
   return (
-    <div className="flex flex-col h-screen">
-      <div className="px-4 pt-5 pb-3 border-b bg-card space-y-3">
+    <div className="meeting-page flex flex-col h-dvh">
+      <div className="session-header px-5 pt-5 pb-4 space-y-4">
         <div className="flex items-center">
-          <button onClick={p.onMinimize} className="flex items-center gap-1 text-sm text-muted-foreground">
+          <Button variant="plain" size="plain" onClick={p.onMinimize} className="flex items-center gap-1 text-sm text-muted-foreground">
             <Minimize2 className="h-4 w-4" /> 切到后台
-          </button>
+          </Button>
           <div className="ml-auto flex gap-2">
-            <button onClick={p.onPause} className="rounded-full bg-muted p-2">{p.paused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}</button>
-            <button onClick={p.onStop} className="rounded-full bg-destructive text-primary-foreground px-3 py-2 text-sm flex items-center gap-1"><Square className="h-3.5 w-3.5" />结束</button>
+            <Button variant="plain" size="plain" onClick={p.onPause} title={p.paused ? "继续录音" : "暂停录音"} aria-label={p.paused ? "继续录音" : "暂停录音"} className="rounded-full bg-muted p-2">{p.paused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}</Button>
+            <Button variant="plain" size="plain" onClick={p.onStop} className="rounded-full bg-destructive text-destructive-foreground px-3 py-2 text-sm flex items-center gap-1"><Square className="h-3.5 w-3.5" />结束</Button>
           </div>
         </div>
         <StatusBar {...p} />
         {p.micOk === false && <p className="text-xs text-destructive">未获得麦克风权限，仅演示模拟转写。</p>}
-        <div className="grid grid-cols-2 rounded-full bg-muted p-1 text-sm">
+        <div className="session-tabs grid grid-cols-2 rounded-full bg-muted/60 p-1 text-sm">
           {([["chat", "消息对话", MessageSquare], ["note", "笔记便签", StickyNote]] as const).map(([k, l, I]) => (
-            <button key={k} onClick={() => go(k)}
+            <Button variant="plain" size="plain" key={k} onClick={() => go(k)}
               className={`rounded-full py-1.5 flex items-center justify-center gap-1 ${p.tab === k ? "bg-card shadow font-medium" : "text-muted-foreground"}`}>
               <I className="h-4 w-4" />{l}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
       <div ref={scroller}
         onScroll={(e) => { const el = e.currentTarget; p.setTab(el.scrollLeft > el.clientWidth / 2 ? "note" : "chat"); }}
         className="flex-1 flex overflow-x-auto snap-x snap-mandatory [scrollbar-width:none]">
-        <div data-page className="w-full shrink-0 snap-start overflow-y-auto p-4 space-y-4">
+        <div data-page className="w-full shrink-0 snap-start overflow-y-auto p-5 space-y-5">
           {p.lines.length === 0 && <p className="text-center text-sm text-muted-foreground mt-20">正在聆听，转写将以气泡显示…</p>}
           {p.lines.map((l) => {
-            const sp = p.speakers.find((s) => s.id === l.sp)!;
+            const sp = p.speakers.find((s) => s.id === l.sp);
+            if (!sp) return null;
             return (
               <div key={l.id} className="flex gap-2 animate-in fade-in slide-in-from-bottom-2">
                 <Avatar sp={sp} />
                 <div>
                   <div className="text-xs text-muted-foreground mb-1">{sp.name || sp.label}</div>
-                  <div className="rounded-2xl rounded-tl-sm bg-card border px-3 py-2 text-sm leading-relaxed">{l.text}</div>
+                  <div className="transcript-bubble rounded-lg bg-card px-4 py-3 text-sm leading-7">{l.text}</div>
                 </div>
               </div>
             );
@@ -300,20 +305,20 @@ function Meeting(p: {
         <div className="w-full shrink-0 snap-start flex flex-col bg-note/30">
           <div className="flex items-center gap-1.5 px-3 py-2 border-b border-border/60 bg-card/90 overflow-x-auto [scrollbar-width:none]">
             {([["标题", Heading1, "# "], ["列表", List, "• "], ["待办", ListChecks, "□ "]] as const).map(([label, I, pre]) => (
-              <button key={label} onClick={() => togglePrefix(pre)}
+              <Button variant="plain" size="plain" key={label} title={label} aria-label={label} onClick={() => togglePrefix(pre)}
                 className="flex items-center gap-1 rounded-full bg-muted px-3 py-1.5 text-xs shrink-0 active:bg-note">
-                <I className="h-3.5 w-3.5" />{label}
-              </button>
+                <I className="h-4 w-4" />
+              </Button>
             ))}
-            <button onClick={insertDivider}
+            <Button variant="plain" size="plain" onClick={insertDivider} title="分割线" aria-label="分割线"
               className="flex items-center gap-1 rounded-full bg-muted px-3 py-1.5 text-xs shrink-0 active:bg-note">
-              <Minus className="h-3.5 w-3.5" />分割线
-            </button>
+              <Minus className="h-4 w-4" />
+            </Button>
             <span className="ml-auto pr-1 text-[10px] text-muted-foreground shrink-0">自动保存</span>
           </div>
           <textarea ref={ta} value={p.pad} onChange={(e) => p.setPad(e.target.value)}
-            placeholder={"像手机记事本一样自由记录…\n\n小贴士：选中文字后点上方按钮，可设为标题、列表或待办"}
-            className="notepad flex-1 w-full resize-none bg-transparent px-5 pt-0 pb-6 text-sm leading-8 outline-none placeholder:text-muted-foreground" />
+            placeholder="记下此刻的想法…"
+            className="notepad flex-1 w-full resize-none bg-transparent px-5 pt-0 pb-6 text-sm leading-8 outline-hidden placeholder:text-muted-foreground" />
         </div>
       </div>
     </div>
@@ -327,13 +332,13 @@ function Background({ type, sec, paused, onOpen }: { type: string; sec: number; 
       <div className="grid grid-cols-2 gap-2 p-4">
         {[1, 2, 3, 4].map((i) => <div key={i} className="aspect-[3/4] rounded-md border border-border bg-card grid place-items-center"><Users className="h-8 w-8 opacity-40" /></div>)}
       </div>
-      <button onClick={onOpen} className="absolute right-4 top-1/2 flex flex-col items-center gap-1 active:scale-95">
+      <Button variant="plain" size="plain" onClick={onOpen} className="absolute right-4 top-1/2 flex flex-col items-center gap-1 active:scale-95">
         <div className="relative">
           <Logo size={56} />
           {!paused && <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-destructive ring-2 ring-secondary animate-pulse" />}
         </div>
         <span className="rounded-full bg-card text-foreground px-2 text-xs font-mono">{fmt(sec)}</span>
-      </button>
+      </Button>
       <p className="absolute bottom-10 inset-x-0 text-center text-xs opacity-60">录音持续进行 · 点击悬浮「纪」按钮回到记录</p>
     </div>
   );
@@ -383,28 +388,28 @@ function After(p: {
     setTimeout(() => { setDetail(buildDetailed(p.lines, p.pad)); setGen(false); }, 1400);
   }
   return (
-    <div className="min-h-screen pb-10">
-      <div className="p-4 pt-6 flex items-center gap-2 border-b bg-card sticky top-0 z-10">
-        <button onClick={p.onHome}><ChevronLeft className="h-5 w-5" /></button>
+    <div className="after-page min-h-screen pb-10">
+      <div className="session-header p-5 pt-6 flex items-center gap-3 sticky top-0 z-10">
+        <Button variant="plain" size="plain" onClick={p.onHome} title="返回首页" aria-label="返回首页"><ChevronLeft className="h-5 w-5" /></Button>
         <div>
           <div className="font-serif font-semibold">会议已结束</div>
-          <div className="text-xs text-muted-foreground">{p.type} · 时长 {fmt(p.sec)} · 录音已保存在本机</div>
+          <div className="text-xs text-muted-foreground">{p.type} · 时长 {fmt(p.sec)}</div>
         </div>
       </div>
-      <div className="p-4 space-y-5">
+      <div className="p-5 space-y-7">
         {p.audioUrl ? <audio controls src={p.audioUrl} className="w-full" /> :
           <p className="text-xs text-muted-foreground rounded-lg bg-muted p-3">本次未录到真实音频（未授权麦克风）。</p>}
 
         <section>
           <h3 className="font-serif font-semibold">说话人标注</h3>
-          <p className="text-xs text-muted-foreground">点击头像备注姓名或角色，仅用于对话展示与追问，不进入详细笔记。</p>
+          <p className="text-xs text-muted-foreground">匿名识别 · 可备注姓名与角色</p>
           <div className="mt-3 flex gap-4 overflow-x-auto">
             {p.speakers.map((s) => (
-              <button key={s.id} onClick={() => setEditing({ ...s })} className="flex flex-col items-center gap-1 min-w-16">
+              <Button variant="plain" size="plain" key={s.id} onClick={() => setEditing({ ...s })} className="flex flex-col items-center gap-1 min-w-16">
                 <div className="relative"><Avatar sp={s} size={48} /><Pencil className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full bg-card p-0.5" /></div>
                 <span className="text-xs">{s.name || s.label}</span>
                 {s.role && <span className="text-[10px] text-muted-foreground">{s.role}</span>}
-              </button>
+              </Button>
             ))}
             {p.speakers.length === 0 && <span className="text-sm text-muted-foreground">暂无识别到的说话人</span>}
           </div>
@@ -412,8 +417,8 @@ function After(p: {
 
         <section>
           <h3 className="font-serif font-semibold">转写记录</h3>
-          <div className="mt-2 max-h-56 overflow-y-auto space-y-2 rounded-xl border bg-card p-3">
-            {p.lines.map((l) => { const s = p.speakers.find((x) => x.id === l.sp)!; return (
+          <div className="mt-3 max-h-56 overflow-y-auto space-y-4 transcript-bubble rounded-lg bg-card p-4">
+            {p.lines.map((l) => { const s = p.speakers.find((x) => x.id === l.sp); if (!s) return null; return (
               <div key={l.id} className="flex gap-2 text-sm"><Avatar sp={s} size={22} /><span><b className="font-medium">{s.name || s.label}：</b>{l.text}</span></div>
             ); })}
           </div>
@@ -421,28 +426,28 @@ function After(p: {
 
         <section>
           <h3 className="font-serif font-semibold">简短笔记</h3>
-          <p className="text-xs text-muted-foreground">会中记下的便签，可继续编辑；以「□」开头的行会进入详细笔记的行动项。</p>
-          <div className="mt-2 rounded-xl border bg-note/40">
+          <p className="text-xs text-muted-foreground"></p>
+          <div className="mt-3 rounded-lg bg-note/40">
             <textarea value={p.pad} onChange={(e) => p.setPad(e.target.value)} rows={Math.max(3, p.pad.split("\n").length + 1)}
               placeholder="会中未记录便签，可在此补记…"
-              className="notepad w-full resize-none bg-transparent rounded-xl px-3 pt-0 pb-2 text-sm leading-8 outline-none placeholder:text-muted-foreground" />
+              className="notepad w-full resize-none bg-transparent rounded-xl px-3 pt-0 pb-2 text-sm leading-8 outline-hidden placeholder:text-muted-foreground" />
           </div>
         </section>
 
         {!detail ? (
-          <button onClick={generate} disabled={gen}
+          <Button variant="plain" size="plain" onClick={generate} disabled={gen}
             className="w-full rounded-full bg-accent text-accent-foreground py-3.5 font-bold disabled:opacity-60">
             {gen ? "正在整合笔记与转写…" : "一键生成详细笔记"}
-          </button>
+          </Button>
         ) : (
-          <section className="rounded-2xl border-2 border-accent bg-card p-4">
+          <section className="detail-notes border-t border-border pt-6">
             <div className="flex items-center">
               <h3 className="font-serif font-black text-lg">详细会议笔记</h3>
-              <button onClick={() => setEdit(!edit)} className="ml-auto text-sm text-accent flex items-center gap-1">
+              <Button variant="plain" size="plain" onClick={() => setEdit(!edit)} className="ml-auto text-sm text-accent flex items-center gap-1">
                 {edit ? <><Check className="h-4 w-4" />完成</> : <><Pencil className="h-4 w-4" />编辑</>}
-              </button>
+              </Button>
             </div>
-            <p className="text-[11px] text-muted-foreground mt-1">客观事实总结 · 不含说话人归属</p>
+            <p className="text-[11px] text-muted-foreground mt-1">会议摘要</p>
             {detail.map((s, si) => (
               <div key={s.h} className="mt-4">
                 <h4 className="text-sm font-bold text-primary">{s.h}</h4>
@@ -464,14 +469,14 @@ function After(p: {
 
       {editing && (
         <div className="fixed inset-0 z-30 bg-foreground/40 flex items-end justify-center" onClick={() => setEditing(null)}>
-          <div className="w-full max-w-[430px] rounded-t-3xl bg-card p-5 space-y-3" onClick={(e) => e.stopPropagation()}>
+          <div className="w-full max-w-[480px] rounded-t-2xl bg-card p-6 space-y-4" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center gap-3"><Avatar sp={editing} size={44} /><span className="font-medium">{editing.label}</span></div>
             <input autoFocus placeholder="真实姓名" value={editing.name} onChange={(e) => setEditing({ ...editing, name: e.target.value })}
               className="w-full rounded-xl border bg-background px-3 py-2.5 text-sm" />
             <input placeholder="角色（如 产品经理）" value={editing.role} onChange={(e) => setEditing({ ...editing, role: e.target.value })}
               className="w-full rounded-xl border bg-background px-3 py-2.5 text-sm" />
-            <button onClick={() => { p.setSpeakers(p.speakers.map((s) => s.id === editing.id ? editing : s)); setEditing(null); }}
-              className="w-full rounded-full bg-primary text-primary-foreground py-3 font-bold">保存</button>
+            <Button variant="plain" size="plain" onClick={() => { p.setSpeakers(p.speakers.map((s) => s.id === editing.id ? editing : s)); setEditing(null); }}
+              className="w-full rounded-full bg-primary text-primary-foreground py-3 font-bold">保存</Button>
           </div>
         </div>
       )}

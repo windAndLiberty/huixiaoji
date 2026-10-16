@@ -3,7 +3,7 @@
   "short_name": "会小纪",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#162638",
-  "theme_color": "#162638",
-  "icons": [{ "src": "/favicon.ico", "sizes": "64x64", "type": "image/x-icon" }]
+  "background_color": "#f3f4f8",
+  "theme_color": "#f3f4f8",
+  "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }]
 }

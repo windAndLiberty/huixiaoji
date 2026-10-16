@@ -8,3 +8,6 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Keep the meeting prototype browser-side with existing MediaRecorder and simulated transcript state; UI changes must preserve recording and note-generation behavior.
+- Use shared Button variants for all app controls and global semantic tokens for translucent surfaces, so presentation stays consistent across meeting views.
