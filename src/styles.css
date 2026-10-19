@@ -165,7 +165,6 @@
 @media (max-width: 360px) {
   .home-page { padding: 0 22px; }
   .voice-art { margin: 0 -22px; height: 190px; }
-  .glass-keys { padding: 0 26px 26px; }
   .home-page .type-choice { padding: 0 10px; }
 }
 @media (prefers-reduced-motion: reduce) {
