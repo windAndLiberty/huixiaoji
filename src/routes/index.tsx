@@ -150,28 +150,48 @@ function Logo({ size = 44 }: { size?: number }) {
   return <div style={{ width: size, height: size }} className="brand-mark shrink-0 grid place-items-center"><AudioLines className="h-6 w-6" /></div>;
 }
 
-const KEY_HEIGHTS = [38, 58, 76, 92, 104, 88, 68, 96, 80, 60, 74, 52, 64, 44, 54, 36];
-const KEY_TINTS = ["--sp1", "--sp2", "--accent", "--sp3", "--sp4", "--sp2", "--sp1", "--accent", "--sp3", "--sp4", "--sp1", "--sp2", "--sp3", "--accent", "--sp4", "--sp1"];
+// 每根玻璃条在 1024×768 原图中的位置：left / width / top / height（百分比）+ 取样色
+const GLASS_KEYS: [number, number, number, number, string][] = [
+  [8.2, 1.4, 49.87, 6.25, "#cdcedd"],
+  [10.16, 1.27, 48.57, 8.33, "#c6c8d8"],
+  [12.89, 3.71, 46.35, 12.76, "#c5c7d6"],
+  [18.55, 3.71, 42.19, 25.91, "#ddc5c9"],
+  [24.02, 3.91, 40.23, 24.61, "#c6cbd7"],
+  [29.69, 4.39, 35.16, 31.38, "#c7c2d0"],
+  [35.55, 4.1, 39.06, 38.02, "#cbd3de"],
+  [40.62, 5.98, 29.17, 52.08, "#c8c3d8"],
+  [46.6, 6.52, 23.44, 59.9, "#c0c9d6"],
+  [54.0, 5.37, 29.3, 47.79, "#c4c0d4"],
+  [60.16, 5.47, 39.06, 40.1, "#c8d1dc"],
+  [65.82, 4.49, 34.64, 38.41, "#c1c0cf"],
+  [71.88, 3.71, 39.58, 25.65, "#d1c1c8"],
+  [77.54, 4.0, 41.8, 21.48, "#bec5d3"],
+  [82.81, 4.69, 45.83, 15.62, "#cac0cb"],
+  [88.28, 3.42, 47.79, 10.55, "#bfbfd1"],
+];
 
-function GlassKeys() {
+function VoiceArt() {
   const [press, setPress] = useState({ i: -1, n: 0 });
   return (
-    <div className="glass-keys" role="group" aria-label="玻璃声波键">
-      {KEY_HEIGHTS.map((h, i) => {
-        const cls = press.n === 0 ? "" : i === press.i ? "is-pressed" : "is-ripple";
-        return (
-          <Button variant="plain" size="plain" key={`${i}-${press.n}`} tabIndex={-1} aria-label={`声波键 ${i + 1}`}
-            onClick={() => setPress({ i, n: press.n + 1 })}
-            className={`glass-key shrink-0 ${cls}`}
-            style={{
-              height: `${h}%`, borderRadius: 7,
-              ["--tint"]: `var(${KEY_TINTS[i] ?? "--sp1"})`,
-              animationDelay: cls === "is-ripple" ? `${Math.min(Math.abs(i - press.i) * 26, 260)}ms` : undefined,
-            } as CSSProperties}
-          />
-        );
-      })}
-    </div>
+    <>
+      <img src={voiceSculpture} alt="通透玻璃声波" width={1024} height={768} fetchPriority="high" />
+      <div className="voice-keys" role="group" aria-label="玻璃声波键">
+        {GLASS_KEYS.map(([l, w, t, h, tint], i) => {
+          const cls = press.n === 0 ? "" : i === press.i ? "is-pressed" : "is-ripple";
+          return (
+            <Button variant="plain" size="plain" key={`${i}-${press.n}`} tabIndex={-1} aria-label={`玻璃键 ${i + 1}`}
+              onClick={() => setPress({ i, n: press.n + 1 })}
+              className={`voice-key ${cls}`}
+              style={{
+                left: `${l}%`, width: `${w}%`, top: `${t}%`, height: `${h}%`,
+                ["--tint"]: tint,
+                animationDelay: cls === "is-ripple" ? `${Math.min(Math.abs(i - press.i) * 26, 260)}ms` : undefined,
+              } as CSSProperties}
+            />
+          );
+        })}
+      </div>
+    </>
   );
 }
 
@@ -188,7 +208,7 @@ function Home({ type, setType, onStart }: { type: string; setType: (t: "现场�
           <h1 className="mt-3 text-[34px] font-bold leading-tight">会小纪</h1>
           <p className="mt-3 text-sm text-muted-foreground">专注对话，让记录自然发生。</p>
         </div>
-        <div className="voice-art"><GlassKeys /></div>
+        <div className="voice-art"><VoiceArt /></div>
         <div className="record-setup">
           <div className="meeting-type grid grid-cols-2 gap-2">
             {([["现场会议", Users], ["云会议", Video]] as const).map(([t, I]) => (
