@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import {
   Mic, MicOff, Pause, Play, Square, Users, Video, MessageSquare, StickyNote,
   ChevronLeft, FileText, Pencil, Check, Sparkles as _s, Minimize2,
@@ -7,7 +7,6 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import voiceSculpture from "@/assets/voice-sculpture.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -151,6 +150,31 @@ function Logo({ size = 44 }: { size?: number }) {
   return <div style={{ width: size, height: size }} className="brand-mark shrink-0 grid place-items-center"><AudioLines className="h-6 w-6" /></div>;
 }
 
+const KEY_HEIGHTS = [38, 58, 76, 92, 104, 88, 68, 96, 80, 60, 74, 52, 64, 44, 54, 36];
+const KEY_TINTS = ["--sp1", "--sp2", "--accent", "--sp3", "--sp4", "--sp2", "--sp1", "--accent", "--sp3", "--sp4", "--sp1", "--sp2", "--sp3", "--accent", "--sp4", "--sp1"];
+
+function GlassKeys() {
+  const [press, setPress] = useState({ i: -1, n: 0 });
+  return (
+    <div className="glass-keys" role="group" aria-label="玻璃声波键">
+      {KEY_HEIGHTS.map((h, i) => {
+        const cls = press.n === 0 ? "" : i === press.i ? "is-pressed" : "is-ripple";
+        return (
+          <Button variant="plain" size="plain" key={`${i}-${press.n}`} tabIndex={-1} aria-label={`声波键 ${i + 1}`}
+            onClick={() => setPress({ i, n: press.n + 1 })}
+            className={`glass-key shrink-0 ${cls}`}
+            style={{
+              height: `${h}%`, borderRadius: 7,
+              ["--tint"]: `var(${KEY_TINTS[i] ?? "--sp1"})`,
+              animationDelay: cls === "is-ripple" ? `${Math.min(Math.abs(i - press.i) * 26, 260)}ms` : undefined,
+            } as CSSProperties}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
 function Home({ type, setType, onStart }: { type: string; setType: (t: "现场会议" | "云会议") => void; onStart: () => void }) {
   return (
     <div className="home-page">
@@ -164,7 +188,7 @@ function Home({ type, setType, onStart }: { type: string; setType: (t: "现场�
           <h1 className="mt-3 text-[34px] font-bold leading-tight">会小纪</h1>
           <p className="mt-3 text-sm text-muted-foreground">专注对话，让记录自然发生。</p>
         </div>
-        <div className="voice-art"><img src={voiceSculpture} alt="通透玻璃声波" width={1024} height={768} fetchPriority="high" /></div>
+        <div className="voice-art"><GlassKeys /></div>
         <div className="record-setup">
           <div className="meeting-type grid grid-cols-2 gap-2">
             {([["现场会议", Users], ["云会议", Video]] as const).map(([t, I]) => (
