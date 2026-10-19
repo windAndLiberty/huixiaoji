@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import {
   Mic, MicOff, Pause, Play, Square, Users, Video, MessageSquare, StickyNote,
   ChevronLeft, FileText, Pencil, Check, Sparkles as _s, Minimize2,
@@ -7,7 +7,6 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import voiceSculpture from "@/assets/voice-sculpture.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -164,7 +163,7 @@ function Home({ type, setType, onStart }: { type: string; setType: (t: "现场�
           <h1 className="mt-3 text-[34px] font-bold leading-tight">会小纪</h1>
           <p className="mt-3 text-sm text-muted-foreground">专注对话，让记录自然发生。</p>
         </div>
-        <div className="voice-art"><img src={voiceSculpture} alt="通透玻璃声波" width={1024} height={768} fetchPriority="high" /></div>
+        <div className="voice-art"><GlassKeys /></div>
         <div className="record-setup">
           <div className="meeting-type grid grid-cols-2 gap-2">
             {([["现场会议", Users], ["云会议", Video]] as const).map(([t, I]) => (
