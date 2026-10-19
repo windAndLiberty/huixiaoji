@@ -150,6 +150,31 @@ function Logo({ size = 44 }: { size?: number }) {
   return <div style={{ width: size, height: size }} className="brand-mark shrink-0 grid place-items-center"><AudioLines className="h-6 w-6" /></div>;
 }
 
+const KEY_HEIGHTS = [38, 58, 76, 92, 104, 88, 68, 96, 80, 60, 74, 52, 64, 44, 54, 36];
+const KEY_TINTS = ["--sp1", "--sp2", "--accent", "--sp3", "--sp4", "--sp2", "--sp1", "--accent", "--sp3", "--sp4", "--sp1", "--sp2", "--sp3", "--accent", "--sp4", "--sp1"];
+
+function GlassKeys() {
+  const [press, setPress] = useState({ i: -1, n: 0 });
+  return (
+    <div className="glass-keys" role="group" aria-label="玻璃声波键">
+      {KEY_HEIGHTS.map((h, i) => {
+        const cls = press.n === 0 ? "" : i === press.i ? "is-pressed" : "is-ripple";
+        return (
+          <Button variant="plain" size="plain" key={`${i}-${press.n}`} tabIndex={-1} aria-label={`声波键 ${i + 1}`}
+            onClick={() => setPress({ i, n: press.n + 1 })}
+            className={`glass-key shrink-0 ${cls}`}
+            style={{
+              height: `${h}%`, borderRadius: 7,
+              ["--tint"]: `var(${KEY_TINTS[i] ?? "--sp1"})`,
+              animationDelay: cls === "is-ripple" ? `${Math.min(Math.abs(i - press.i) * 26, 260)}ms` : undefined,
+            } as CSSProperties}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
 function Home({ type, setType, onStart }: { type: string; setType: (t: "现场会议" | "云会议") => void; onStart: () => void }) {
   return (
     <div className="home-page">
