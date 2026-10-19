@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import voiceSculpture from "@/assets/voice-sculpture.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
