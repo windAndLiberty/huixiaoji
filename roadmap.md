@@ -5,4 +5,4 @@
 
 # Home artwork
 - [x] Restore the original glass sound-wave artwork as the static home visual.
-- [ ] Remove the click-to-press interaction on the glass bars entirely.
+- [x] Remove the click-to-press interaction on the glass bars entirely.
