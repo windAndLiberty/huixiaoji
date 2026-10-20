@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Mic, MicOff, Pause, Play, Square, Users, Video, MessageSquare, StickyNote,
   ChevronLeft, FileText, Pencil, Check, Sparkles as _s, Minimize2,
@@ -150,6 +150,7 @@ function App() {
 function Logo({ size = 44 }: { size?: number }) {
   return <div style={{ width: size, height: size }} className="brand-mark shrink-0 grid place-items-center"><AudioLines className="h-6 w-6" /></div>;
 }
+
 
 
 function Home({ type, setType, onStart }: { type: string; setType: (t: "现场会议" | "云会议") => void; onStart: () => void }) {
